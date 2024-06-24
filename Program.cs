@@ -20,14 +20,17 @@ public class Program
                 var prod_maybe = Environment.GetEnvironmentVariable("MODE").ToMaybe();
 
                 var settings = ConfigReader
-                    .LoadConfig<WorkerSettings>("worker_settings.json"
+                    .LoadConfig<WorkerSettings>(
+                        "worker_settings.json"
                         , fallback: new WorkerSettings());
+                
+                
                 // settings.Dump(nameof(settings));
 
                 /** SMART OVERDUE TASKS RESCHEDULER **/
 
                 scheduler
-                    .Schedule<InvokableTodoistRescheduler>()
+                    .Schedule<TodoistRescheduler>()
                     .EveryMinute()
                     // .Cron("00 9,13,20 * * *")
                     .RunOnceAtStart()
@@ -35,20 +38,20 @@ public class Program
 
                 if (settings.bump.enabled)
                     /** AUTO BUMPER */
-    
+
                     prod_maybe.Case<string>(some: _ =>
                     {
                         scheduler
                             .Schedule<InvocableTodoistBumper>()
                             .EverySeconds(settings.bump.wait_seconds)
-                            .PreventOverlapping(nameof(InvokableTodoistRescheduler));
+                            .PreventOverlapping(nameof(TodoistRescheduler));
                         return _;
                     }, none: () =>
                     {
                         scheduler
                             .Schedule<InvocableTodoistBumper>()
                             .EverySeconds(60 * settings.bump.wait_minutes)
-                            .PreventOverlapping(nameof(InvokableTodoistRescheduler))
+                            .PreventOverlapping(nameof(TodoistRescheduler))
                             ;
 
                         return "";
@@ -74,6 +77,6 @@ public class Program
                 services.AddScheduler();
                 services.AddTransient<MyFirstInvocable>();
                 services.AddTransient<InvocableTodoistBumper>();
-                services.AddTransient<InvokableTodoistRescheduler>();
+                services.AddTransient<TodoistRescheduler>();
             });
 }

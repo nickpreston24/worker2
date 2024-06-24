@@ -31,7 +31,7 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         bool debug = false;
         var today = DateTime.Now;
 
-        var bump_search = new TodoistTaskSearch()
+        var bump_search = new TodoistTaskSearch("")
         {
             label = "bump"
         };

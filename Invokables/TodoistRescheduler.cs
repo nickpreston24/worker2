@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CodeMechanic.Async;
+using CodeMechanic.Diagnostics;
 using CodeMechanic.FileSystem;
 using CodeMechanic.Todoist;
 using CodeMechanic.Types;
@@ -9,27 +10,26 @@ using Newtonsoft.Json;
 
 namespace worker2;
 
-public class InvokableTodoistRescheduler : IInvocable
+public class TodoistRescheduler : IInvocable
 {
     private readonly ITodoistSchedulerService todoist;
 
-    public InvokableTodoistRescheduler(ITodoistSchedulerService svc)
+    public virtual ReschedulingOptions rescheduling_options { get; set; } = new();
+
+    public TodoistRescheduler(ITodoistSchedulerService service)
     {
-        todoist = svc;
+        todoist = service;
     }
 
     public async Task Invoke()
     {
         Console.WriteLine("Starting Rescheduler Invoke");
-
+        rescheduling_options.Dump("current options");
+        return;
         try
         {
             // string log_message = "Beginning Invoke at '" + DateTime.Now.ToString("o") + "'";
             // File.AppendAllText("rescheduler.log", log_message);
-
-            var rescheduling_options =
-                ConfigReader.LoadConfig<ReschedulingOptions>("rescheduling_options.json",
-                    fallback: new ReschedulingOptions());
             // rescheduling_options.Dump(nameof(rescheduling_options));
 
             var Q = new SerialQueue();
@@ -49,11 +49,6 @@ public class InvokableTodoistRescheduler : IInvocable
                     ));
 
             await Task.WhenAll(tasks);
-
-            // await AutoRescheduleFilteredTasks("!recurring");  // 591
-            // await AutoRescheduleFilteredTasks("overdue & !recurring"); // 45
-            // await AutoRescheduleFilteredTasks("overdue & recurring"); // 85
-            // await AutoRescheduleFilteredTasks("overdue"); // 130
         }
         catch (Exception e)
         {
@@ -97,9 +92,8 @@ public class InvokableTodoistRescheduler : IInvocable
             }
             else if (!rescheduling_options.use_cache)
             {
-                candidates = await todoist.SearchTodos(new TodoistTaskSearch()
+                candidates = await todoist.SearchTodos(new TodoistTaskSearch("guns")
                 {
-                    filter = rescheduling_options.filter.AsParameterizedString(),
                 });
             }
 
