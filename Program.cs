@@ -23,15 +23,20 @@ public class Program
                     .LoadConfig<WorkerSettings>(
                         "worker_settings.json"
                         , fallback: new WorkerSettings());
-                
-                
+
+                scheduler
+                    .Schedule<FileWatcherInvocable>()
+                    .Daily()
+                    .RunOnceAtStart();
+
+
                 // settings.Dump(nameof(settings));
 
                 /** SMART OVERDUE TASKS RESCHEDULER **/
 
                 scheduler
                     .Schedule<TodoistRescheduler>()
-                    .EveryMinute()
+                    .Daily()
                     // .Cron("00 9,13,20 * * *")
                     .RunOnceAtStart()
                     .PreventOverlapping(nameof(InvocableTodoistBumper));
@@ -75,8 +80,8 @@ public class Program
                 services.AddSingleton<ITodoistSchedulerService, TodoistSchedulerService>();
 
                 services.AddScheduler();
-                services.AddTransient<MyFirstInvocable>();
                 services.AddTransient<InvocableTodoistBumper>();
                 services.AddTransient<TodoistRescheduler>();
+                services.AddTransient<FileWatcherInvocable>();
             });
 }
