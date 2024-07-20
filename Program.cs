@@ -1,8 +1,10 @@
 using CodeMechanic.FileSystem;
 using CodeMechanic.Types;
 using Coravel;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using worker2.Services;
 
 namespace worker2;
 
@@ -24,6 +26,13 @@ public class Program
                         "worker_settings.json"
                         , fallback: new WorkerSettings());
 
+                scheduler
+                    .Schedule<Regex101Invocable>()
+                    .Daily()
+                    .Once()
+                    ;
+
+                // FILE WATCHER
                 scheduler
                     .Schedule<FileWatcherInvocable>()
                     .Daily()
@@ -83,5 +92,6 @@ public class Program
                 services.AddTransient<InvocableTodoistBumper>();
                 services.AddTransient<TodoistRescheduler>();
                 services.AddTransient<FileWatcherInvocable>();
+                services.AddSingleton<Regex101Invocable>();
             });
 }

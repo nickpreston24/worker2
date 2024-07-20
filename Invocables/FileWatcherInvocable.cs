@@ -1,3 +1,4 @@
+using CodeMechanic.Bash;
 using CodeMechanic.FileSystem;
 using Coravel.Invocable;
 
@@ -11,7 +12,7 @@ public class FileWatcherInvocable : IInvocable
 
     public async Task Invoke()
     {
-        Console.WriteLine($"Inovoked {nameof(FileWatcherInvocable)}");
+        // Console.WriteLine($"Invoked {nameof(FileWatcherInvocable)}");
         string projects_root = "/home/nick/Desktop/projects/personal";
 
         var all_projects = new Grepper()
@@ -51,8 +52,9 @@ public class FileWatcherInvocable : IInvocable
     private void OnFileChange(object sender, FileSystemEventArgs e)
     {
         Console.WriteLine($" file {e.Name} changed at path '{e.FullPath}'");
-        Console.WriteLine(e.ChangeType);
+        // Console.WriteLine(e.ChangeType);
         // Console.WriteLine("sender: \n" + sender.ToString());
+        // FireTheDEI(e);
     }
 
     private void OnFileDelete(object sender, FileSystemEventArgs e)
@@ -68,5 +70,36 @@ public class FileWatcherInvocable : IInvocable
     private void OnFileCreation(object sender, FileSystemEventArgs e)
     {
         Console.WriteLine($" a file {e.Name} was created at '{e.FullPath}'");
+    }
+
+    private static async ValueTask<bool> FireTheDEI(FileSystemEventArgs e)
+    {
+        string name = e.Name;
+        string filepath = e.FullPath;
+
+        string dir = Path.GetDirectoryName(filepath);
+        Console.WriteLine($"dir: {dir}");
+
+        // if (dir.Contains("Pages"))
+        // {
+        //     dir = dir.GoUp();
+        //     Console.WriteLine($"dir: {dir}");
+        // }
+
+        var project_folder = dir
+            .AsDirectory()
+            .GoUpToDirectory("Pages")
+            .GoUp();
+
+        Console.WriteLine("project dir: " + project_folder);
+
+        string package_json_filepath = Path.Combine(project_folder, "package.json");
+        Console.WriteLine($"package.json: {package_json_filepath}");
+        if (File.Exists(package_json_filepath))
+        {
+            "yarn buildcss:linux".Bash(verbose: true);
+        }
+
+        return true;
     }
 }
