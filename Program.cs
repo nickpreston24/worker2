@@ -26,11 +26,11 @@ public class Program
                         "worker_settings.json"
                         , fallback: new WorkerSettings());
 
-                scheduler
-                    .Schedule<Regex101Invocable>()
-                    .Daily()
-                    .Once()
-                    ;
+                // scheduler
+                //     .Schedule<Regex101Invocable>()
+                //     .Daily()
+                //     .Once()
+                //     ;
 
                 // FILE WATCHER
                 scheduler
@@ -91,7 +91,12 @@ public class Program
                 services.AddScheduler();
                 services.AddTransient<InvocableTodoistBumper>();
                 services.AddTransient<TodoistRescheduler>();
-                services.AddTransient<FileWatcherInvocable>();
                 services.AddSingleton<Regex101Invocable>();
+
+                // FS Watcher
+                services.AddSingleton<FileSystemQueue>();
+                services.AddSingleton<Listener>();
+                services.AddSingleton<FileWatcherInvocable>();
+                // services.AddHostedService<FileSystemWorker>();
             });
 }
