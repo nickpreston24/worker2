@@ -7,6 +7,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="CliWrap" Version="3.6.6" />
         <PackageReference Include="CodeMechanic.Async" Version="1.0.2" />
         <PackageReference Include="CodeMechanic.Bash" Version="1.0.1" />
         <PackageReference Include="CodeMechanic.Diagnostics" Version="1.0.3" />
@@ -17,10 +18,13 @@
         <PackageReference Include="CodeMechanic.Scriptures" Version="1.0.0" />
         <PackageReference Include="CodeMechanic.Systemd.Daemons" Version="1.0.1" />
         <PackageReference Include="CodeMechanic.Todoist" Version="1.0.2" />
-        <PackageReference Include="CodeMechanic.Types" Version="1.0.9" />
+        <PackageReference Include="CodeMechanic.Types" Version="1.0.10" />
         <PackageReference Include="Coravel" Version="5.0.3" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
         <PackageReference Include="System.Text.Json" Version="8.0.3" />
         <PackageReference Include="Twilio" Version="7.2.0" />
     </ItemGroup>
+<!--    <ItemGroup>-->
+<!--        <ProjectReference Include="..\justdoit\justdoit.csproj" />-->
+<!--    </ItemGroup>-->
 </Project>

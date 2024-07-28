@@ -70,7 +70,7 @@ public class FileWatcherInvocable : IInvocable
             var @event = await _queue.Consume(cancellationToken);
             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             // await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
-            // await WebAppOperations.FireTheDEI(@event);
+            await WebAppOperations.FireTheDEI(@event);
 
             _logger.LogInformation("[{date}] {fileName} arrived at worker.", $"{DateTime.Now:O}", @event.Name);
         }

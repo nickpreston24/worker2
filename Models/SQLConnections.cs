@@ -5,6 +5,10 @@ namespace worker2;
 
 public static class SQLConnections
 {
+    public static MySqlConnection CreateConnection() => GetMySQLConnectionString().AsConnection();
+
+    public static MySqlConnection AsConnection(this string connectionString) => new MySqlConnection(connectionString);
+
     public static string GetMySQLConnectionString()
     {
         var connectionString = new MySqlConnectionStringBuilder()

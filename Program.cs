@@ -1,3 +1,4 @@
+using CodeMechanic.Diagnostics;
 using CodeMechanic.FileSystem;
 using CodeMechanic.Types;
 using Coravel;
@@ -22,9 +23,21 @@ public class Program
                 var prod_maybe = Environment.GetEnvironmentVariable("MODE").ToMaybe();
 
                 var settings = ConfigReader
-                    .LoadConfig<WorkerSettings>(
+                    .LoadConfig(
                         "worker_settings.json"
                         , fallback: new WorkerSettings());
+
+                settings.Dump("Current settings ", printFn: Console.WriteLine);
+
+                if (settings.justdoit.Enabled)
+                    scheduler.Schedule<JustDoItInvoker>()
+                        .EveryTenSeconds()
+                        .Once()
+                        ;
+                // if (settings.justdoit.Enabled)
+                // scheduler.Schedule<WebScrapingInvoker>()
+                //     .EveryMinute()
+                //     .Once();
 
                 // scheduler
                 //     .Schedule<Regex101Invocable>()
@@ -87,6 +100,7 @@ public class Program
             .ConfigureServices(services =>
             {
                 services.AddSingleton<ITodoistSchedulerService, TodoistSchedulerService>();
+                services.AddSingleton<ITodoSchedulerService, TodoSchedulerService>();
 
                 services.AddScheduler();
                 services.AddTransient<InvocableTodoistBumper>();
@@ -97,6 +111,9 @@ public class Program
                 services.AddSingleton<FileSystemQueue>();
                 services.AddSingleton<Listener>();
                 services.AddSingleton<FileWatcherInvocable>();
+                services.AddSingleton<WebScrapingInvoker>();
+
+                services.AddTransient<JustDoItInvoker>();
                 // services.AddHostedService<FileSystemWorker>();
             });
 }
