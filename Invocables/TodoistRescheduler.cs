@@ -25,10 +25,10 @@ public class TodoistRescheduler : IInvocable
     {
         Console.WriteLine("Starting Rescheduler Invoke");
         rescheduling_options.Dump("current options");
-        return;
+        // return;
         try
         {
-            // string log_message = "Beginning Invoke at '" + DateTime.Now.ToString("o") + "'";
+            string log_message = "Beginning Invoke at '" + DateTime.Now.ToString("o") + "'";
             // File.AppendAllText("rescheduler.log", log_message);
             // rescheduling_options.Dump(nameof(rescheduling_options));
 

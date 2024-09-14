@@ -4,12 +4,8 @@ using System.Text;
 using CliWrap;
 using CodeMechanic.Bash;
 using CodeMechanic.Diagnostics;
-using CodeMechanic.FileSystem;
-using CodeMechanic.Types;
 using Coravel.Invocable;
-// using justdoit.Models;
 using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
 
 namespace worker2;
 
@@ -28,29 +24,6 @@ public class JustDoItInvoker : IInvocable
         var watch = Stopwatch.StartNew();
 
         await todos_scheduler.CreateRandomSchedule();
-
-        // var updated_todos = await AutoRescheduleFilteredTasks(new Reschedule()
-        // {
-        //     enabled = true,
-        //     use_cache = false
-        // });
-
-        // updated_todos.Dump("updated todos");
-
-        // try
-        // {
-        //     Console.WriteLine("running alerts");
-        //     await Notifiers.SendMessage("hello there", "hello there from Bash!");
-        //     await Notifiers.SendMessage_JackMa("hello there", "hello there from Bash (jack ma)!");
-        //     await Notifiers.SendMessage_CliWrap("hello there", "hello there from cli wrap!");
-        // }
-        // catch (Exception e)
-        // {
-        //     Console.WriteLine(e);
-        //     throw;
-        // }
-        // // string output = await "ls ~/Desktop".Bash();
-        // // Console.WriteLine(output);
 
         watch.Stop();
         Console.WriteLine(watch.Elapsed);

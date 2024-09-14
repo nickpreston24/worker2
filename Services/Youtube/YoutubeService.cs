@@ -64,7 +64,9 @@ public class YoutubeService : IYoutubeService
     {
         foreach (var line in lines)
         {
-            yield return line.Extract<YoutubeLink>(YoutubeRegexPattern.Link.CompiledPattern);
+            // yield return line.Extract<YoutubeLink>(YoutubeRegexPattern.Link.CompiledPattern);
+            yield return CodeMechanic.RegularExpressions.RegexExtensions.Extract<YoutubeLink>(line,
+                YoutubeRegexPattern.Link.CompiledPattern);
         }
     }
 }

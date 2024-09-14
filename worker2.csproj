@@ -5,26 +5,30 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <NoWarn>
+            CS0414;CS8602;CS1998;CS0168;CS8605;CS8603;CS8625;CS8604;CS8600;CS8601;CS8620;CS8618;CS4014;CS8619;CS8765;CS0105;CS8767;CS0659;CS8619;CS0219;CS0169;CS0649;
+        </NoWarn>
     </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.6" />
-        <PackageReference Include="CodeMechanic.Async" Version="1.0.2" />
-        <PackageReference Include="CodeMechanic.Bash" Version="1.0.1" />
-        <PackageReference Include="CodeMechanic.Diagnostics" Version="1.0.3" />
-        <PackageReference Include="CodeMechanic.Embeds" Version="1.0.0" />
-        <PackageReference Include="CodeMechanic.FileSystem" Version="1.0.12" />
-        <PackageReference Include="CodeMechanic.Reflection" Version="1.0.4" />
-        <PackageReference Include="CodeMechanic.Regex" Version="1.0.6" />
-        <PackageReference Include="CodeMechanic.Scriptures" Version="1.0.0" />
-        <PackageReference Include="CodeMechanic.Systemd.Daemons" Version="1.0.1" />
-        <PackageReference Include="CodeMechanic.Todoist" Version="1.0.2" />
-        <PackageReference Include="CodeMechanic.Types" Version="1.0.10" />
-        <PackageReference Include="Coravel" Version="5.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
-        <PackageReference Include="System.Text.Json" Version="8.0.3" />
-        <PackageReference Include="Twilio" Version="7.2.0" />
+
+        <PackageReference Include="CodeMechanic.Async" Version="1.0.2"/>
+        <PackageReference Include="CodeMechanic.Bash" Version="1.0.1"/>
+        <PackageReference Include="CodeMechanic.Diagnostics" Version="1.0.3"/>
+        <PackageReference Include="CodeMechanic.Embeds" Version="1.0.1"/>
+        <PackageReference Include="CliWrap" Version="3.6.6"/>
+        <PackageReference Include="CodeMechanic.FileSystem" Version="2.0.0"/>
+        <PackageReference Include="CodeMechanic.Reflection" Version="1.0.4"/>
+        <PackageReference Include="CodeMechanic.RegularExpressions" Version="1.0.1"/>
+        <PackageReference Include="Coravel" Version="5.0.4"/>
+        <PackageReference Include="Dapper" Version="2.1.35"/>
+        <PackageReference Include="CodeMechanic.Systemd.Daemons" Version="1.0.1"/>
+        <PackageReference Include="CodeMechanic.Todoist" Version="1.0.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0"/>
+        <PackageReference Include="MySql.Data" Version="9.0.0"/>
+        <PackageReference Include="System.Text.Json" Version="8.0.4"/>
+        <PackageReference Include="Twilio" Version="7.3.0"/>
     </ItemGroup>
-<!--    <ItemGroup>-->
-<!--        <ProjectReference Include="..\justdoit\justdoit.csproj" />-->
-<!--    </ItemGroup>-->
 </Project>

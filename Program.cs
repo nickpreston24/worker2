@@ -2,7 +2,6 @@ using CodeMechanic.Diagnostics;
 using CodeMechanic.FileSystem;
 using CodeMechanic.Types;
 using Coravel;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using worker2.Services;
@@ -31,9 +30,9 @@ public class Program
 
                 if (settings.justdoit.Enabled)
                     scheduler.Schedule<JustDoItInvoker>()
-                        .EveryTenSeconds()
-                        .Once()
-                        ;
+                        .Daily()
+                        .RunOnceAtStart();
+
                 // if (settings.justdoit.Enabled)
                 // scheduler.Schedule<WebScrapingInvoker>()
                 //     .EveryMinute()

@@ -1,15 +1,8 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using CodeMechanic.Async;
 using CodeMechanic.Diagnostics;
-using CodeMechanic.RegularExpressions;
 using CodeMechanic.Types;
 using Dapper;
-// using justdoit.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace worker2;
 
@@ -121,11 +114,14 @@ public class TodoSchedulerService : ITodoSchedulerService
     private async Task<int> PerformUpdate(Todo todo)
     {
         bool debug = true;
-        string update_query = @"INSERT INTO todos (content, due, start, end, priority, status, is_sample_data)
-        VALUES (@content, @due, @start, @end, @priority, @status, @is_sample_data)
+        string update_query = @"INSERT INTO todos (id, content, due, start, end, priority, status, is_sample_data)
+        VALUES (@id, @content, @due, @start, @end, @priority, @status, @is_sample_data)
+        ON DUPLICATE KEY UPDATE content = VALUES(content),
+                            priority=VALUES(priority),
+                            status=VALUES(status)
        ";
 
-        var connection = SQLConnections.CreateConnection();
+        using var connection = SQLConnections.CreateConnection();
         int affected = await connection.ExecuteAsync(update_query, new
         {
             id = todo.id,
