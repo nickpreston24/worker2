@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
-using CodeMechanic.RegularExpressions;
 using CodeMechanic.Diagnostics;
 using CodeMechanic.FileSystem;
 
