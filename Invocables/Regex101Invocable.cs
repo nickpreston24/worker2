@@ -36,12 +36,12 @@ public class Regex101Invocable : IInvocable
         Console.WriteLine("Waiting for queue to finish....");
 
         Task.WaitAll(
-            producer1.Produce()
-            , producer2.Produce()
-            , producer3.Produce()
-            , consumer1.Process()
-            , consumer2.Process()
-            , consumer3.Process()
+            producer1.Produce(),
+            producer2.Produce(),
+            producer3.Produce(),
+            consumer1.Process(),
+            consumer2.Process(),
+            consumer3.Process()
         );
 
         Console.WriteLine("queue finished!");
@@ -49,10 +49,13 @@ public class Regex101Invocable : IInvocable
 
     private static async Task<List<Grepper.GrepResult>> QuickGrep(string root, Regex101Pattern rgx)
     {
-        var dirfiles = Directory
-                .EnumerateFiles(root, "*", new EnumerationOptions() { RecurseSubdirectories = true })
-            // .Count()
-            ;
+        var dirfiles = Directory.EnumerateFiles(
+            root,
+            "*",
+            new EnumerationOptions() { RecurseSubdirectories = true }
+        )
+        // .Count()
+        ;
 
         // dirfiles.TakeRandom(5).Dump("dirfiles");
 
@@ -67,11 +70,16 @@ public class Regex101Invocable : IInvocable
 
         watch.Stop();
         Console.WriteLine(watch);
-        Console.WriteLine($"total files searched: {total_files_searched}\n total grep results: {grepResults.Count}");
+        Console.WriteLine(
+            $"total files searched: {total_files_searched}\n total grep results: {grepResults.Count}"
+        );
         return grepResults;
     }
 
-    private static async Task<List<Grepper.GrepResult>> GetGrepResultsThreaded(string root, Regex101Pattern rgx)
+    private static async Task<List<Grepper.GrepResult>> GetGrepResultsThreaded(
+        string root,
+        Regex101Pattern rgx
+    )
     {
         var subdirectories = Directory
             .GetDirectories(root)
@@ -94,8 +102,11 @@ public class Regex101Invocable : IInvocable
                 {
                     RootPath = root,
                     FileSearchMask = "*.cs*",
-                    FileSearchLinePattern = rgx.Pattern
-                }.GetMatchingFiles().DistinctBy(x => x.FilePath).ToList();
+                    FileSearchLinePattern = rgx.Pattern,
+                }
+                    .GetMatchingFiles()
+                    .DistinctBy(x => x.FilePath)
+                    .ToList();
 
                 // Console.WriteLine($"done looking in subdir '{sdir}'.");
                 Console.WriteLine($"files found {results.Count}");
@@ -107,35 +118,33 @@ public class Regex101Invocable : IInvocable
         });
 
         var all_results = await Task.WhenAll(tasks);
-        return all_results
-            .Flatten()
-            .DistinctBy(res => res.FilePath)
-            .ToList();
+        return all_results.Flatten().DistinctBy(res => res.FilePath).ToList();
     }
 
-    private static async Task<List<Grepper.GrepResult>> GrepDirectories(string root, Regex101Pattern rgx)
+    private static async Task<List<Grepper.GrepResult>> GrepDirectories(
+        string root,
+        Regex101Pattern rgx
+    )
     {
         var grepper = new Grepper()
         {
             RootPath = root,
             FileSearchMask = "*.cs*",
-            FileSearchLinePattern = rgx.Pattern
+            FileSearchLinePattern = rgx.Pattern,
         };
 
-        var dirs = await GrepperExtensions.SearchDirectories(grepper, root,
-            subfolder_patterns: new[]
-                { ".*" } // sadly, I cannot append the subfolders to .* and await each for some reason.
-            // subfolder_patterns: subdirectories
+        var dirs = await GrepperExtensions.SearchDirectories(
+            grepper,
+            root,
+            subfolder_patterns: new[] { ".*" } // sadly, I cannot append the subfolders to .* and await each for some reason.
+        // subfolder_patterns: subdirectories
         );
 
         // var grepResults = new List<Grepper.GrepResult>();
 
-        var grepResults = dirs
-                .SelectMany(x => x.Value)
-                .DistinctBy(x => x.FilePath)
-                .ToList()
-            // .Dump("files containing regular expressions")
-            ;
+        var grepResults = dirs.SelectMany(x => x.Value).DistinctBy(x => x.FilePath).ToList()
+        // .Dump("files containing regular expressions")
+        ;
         return grepResults;
     }
 }
@@ -143,20 +152,31 @@ public class Regex101Invocable : IInvocable
 public class Regex101Pattern : Enumeration
 {
     // A url with regex101 in it, e.g: https://regex101.com/r/abCzYX/1
-    public static Regex101Pattern Regex101 = new Regex101Pattern(1, @"Regex101",
+    public static Regex101Pattern Regex101 = new Regex101Pattern(
+        1,
+        @"Regex101",
         @"(?<domain>https?:\/\/regex101\.com)\/(?<api>\w*)\/(?<id>\w+)/(?<rest>\d*)",
-        "https://regex101.com/r/W4ffzt/1");
+        "https://regex101.com/r/W4ffzt/1"
+    );
 
     // an actual regex pattern string:
-    public static Regex101Pattern RegexPatternString = new Regex101Pattern(2, nameof(RegexPatternString),
-        @"Hello there");
+    public static Regex101Pattern RegexPatternString = new Regex101Pattern(
+        2,
+        nameof(RegexPatternString),
+        @"Hello there"
+    );
 
-    protected Regex101Pattern(int id, string name, string pattern, string uri = "") : base(id, name)
+    protected Regex101Pattern(int id, string name, string pattern, string uri = "")
+        : base(id, name)
     {
         this.Pattern = pattern;
-        this.CompiledRegex = new Regex(pattern,
-            RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.Compiled |
-            RegexOptions.IgnorePatternWhitespace);
+        this.CompiledRegex = new Regex(
+            pattern,
+            RegexOptions.Multiline
+                | RegexOptions.IgnoreCase
+                | RegexOptions.Compiled
+                | RegexOptions.IgnorePatternWhitespace
+        );
     }
 
     public Regex CompiledRegex { get; set; }

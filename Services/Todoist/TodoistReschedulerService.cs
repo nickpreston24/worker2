@@ -3,9 +3,9 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using CodeMechanic.RegularExpressions;
 using CodeMechanic.Async;
 using CodeMechanic.Diagnostics;
+using CodeMechanic.RegularExpressions;
 using CodeMechanic.Todoist;
 using CodeMechanic.Types;
 using Newtonsoft.Json;
@@ -31,10 +31,7 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         bool debug = false;
         var today = DateTime.Now;
 
-        var bump_search = new TodoistTaskSearch("")
-        {
-            label = "bump"
-        };
+        var bump_search = new TodoistTaskSearch("") { label = "bump" };
 
         var todos_marked_bump = (await SearchTodos(bump_search)).ToArray();
 
@@ -49,27 +46,31 @@ public class TodoistSchedulerService : ITodoistSchedulerService
 
         var actual_updates = todos_marked_bump
             .Select(todo => new TodoistUpdates()
-                {
-                    id = todo.id,
-                    description = todo.description,
-                    labels = todo.labels.Where(l => !l.Equals("bump", StringComparison.OrdinalIgnoreCase)).ToArray(),
+            {
+                id = todo.id,
+                description = todo.description,
+                labels = todo
+                    .labels.Where(l => !l.Equals("bump", StringComparison.OrdinalIgnoreCase))
+                    .ToArray(),
 
-                    due_date =
-                        DateTime.Now
-                            .AddDays(
-                                (
-                                    todo.description
-                                        .Extract<BumpTime>(@"bump:(?<value>\d+)(?<unit>\w{1,5})")
-                                        .FirstOrNullObject(
-                                            new BumpTime { unit = "d", value = days }
-                                                .Dump("falling back to bump time")
-                                        )
-                                ).days.Dump("days")
-                            )
-                            .ToString("o")
-                            .Dump("due_date")
-                }
-            ).ToList();
+                due_date = DateTime
+                    .Now.AddDays(
+                        (
+                            todo
+                                .description.Extract<BumpTime>(
+                                    @"bump:(?<value>\d+)(?<unit>\w{1,5})"
+                                )
+                                .FirstOrNullObject(
+                                    new BumpTime { unit = "d", value = days }.Dump(
+                                        "falling back to bump time"
+                                    )
+                                )
+                        ).days.Dump("days")
+                    )
+                    .ToString("o")
+                    .Dump("due_date"),
+            })
+            .ToList();
 
         Console.WriteLine($"performing {actual_updates.Count} updates");
 
@@ -86,7 +87,8 @@ public class TodoistSchedulerService : ITodoistSchedulerService
 
     public async Task<List<TodoistTask>> SearchTodos(TodoistTaskSearch search)
     {
-        if (search == null) throw new ArgumentNullException(nameof(search));
+        if (search == null)
+            throw new ArgumentNullException(nameof(search));
 
         string joined_ids = string.Join(",", search.ids);
         string label = search.label.Dump("labels");
@@ -95,7 +97,10 @@ public class TodoistSchedulerService : ITodoistSchedulerService
 
         // string uri = "https://api.todoist.com/rest/v2/tasks";
         string uri = new StringBuilder("https://api.todoist.com/rest/v2/tasks?")
-            .AppendIf((_) => joined_ids.NotEmpty() && joined_ids.Length >= 1, $"todos={joined_ids}&")
+            .AppendIf(
+                (_) => joined_ids.NotEmpty() && joined_ids.Length >= 1,
+                $"todos={joined_ids}&"
+            )
             .AppendIf((_) => label.NotEmpty(), $"label={label}&")
             .AppendIf((_) => filter.NotEmpty(), $"filter={filter}&")
             .AppendIf((_) => project_id.NotEmpty(), $"project_id={project_id}&")
@@ -113,19 +118,23 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         // var ids = todos.SelectMany(t => t.id);
         // string joined_ids = string.Join(",", ids);
         //    string uri = !(todos.Length > 0)
-        //        ? "https://api.todoist.com/rest/v2/tasks": 
+        //        ? "https://api.todoist.com/rest/v2/tasks":
         //        $"https://api.todoist.com/rest/v2/tasks?todos={joined_ids}&label={label}";
         //    Console.WriteLine("uri :>> " + uri);
     }
 
     private async Task<string> GetContentAsync(
-        string uri
-        , string bearer_token
-        , string json = ""
-        , bool debug = false)
+        string uri,
+        string bearer_token,
+        string json = "",
+        bool debug = false
+    )
     {
         using HttpClient http = new HttpClient();
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer_token);
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            bearer_token
+        );
 
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
         if (json.NotEmpty())
@@ -144,23 +153,26 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         return content;
     }
 
-    public async Task<List<TodoistTask>> UpdateTodos(List<TodoistUpdates> todoist_updates, int delay_in_seconds = 5)
+    public async Task<List<TodoistTask>> UpdateTodos(
+        List<TodoistUpdates> todoist_updates,
+        int delay_in_seconds = 5
+    )
     {
         try
         {
-            if (todoist_updates.Count == 0) return Enumerable.Empty<TodoistTask>().ToList();
+            if (todoist_updates.Count == 0)
+                return Enumerable.Empty<TodoistTask>().ToList();
             var Q = new SerialQueue();
 
             var updated_todos = new List<TodoistTask>();
             Stopwatch sw = Stopwatch.StartNew();
-            var tasks = todoist_updates
-                .Select(update => Q
-                    .Enqueue(async () =>
-                        {
-                            var updates = await PerformUpdate(update);
-                            updated_todos.AddRange(updates);
-                        }
-                    ));
+            var tasks = todoist_updates.Select(update =>
+                Q.Enqueue(async () =>
+                {
+                    var updates = await PerformUpdate(update);
+                    updated_todos.AddRange(updates);
+                })
+            );
 
             await Task.WhenAll(tasks);
 
@@ -202,7 +214,6 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         }
     }
 
-
     private async Task<List<TodoistTask>> PerformUpdate(TodoistUpdates todo)
     {
         bool debug = true;
@@ -223,13 +234,13 @@ public class TodoistSchedulerService : ITodoistSchedulerService
         return new List<TodoistTask>();
     }
 
-
     public async Task<TodoistTask> DeleteTodo(string id)
     {
         try
         {
             bool debug = true;
-            if (id.IsEmpty()) throw new ArgumentNullException(nameof(id));
+            if (id.IsEmpty())
+                throw new ArgumentNullException(nameof(id));
             if (!id.IsNumeric())
                 throw new ArgumentException("a Todoist task id must be numeric");
 
@@ -241,14 +252,20 @@ public class TodoistSchedulerService : ITodoistSchedulerService
             string uri = $"https://api.todoist.com/rest/v2/tasks/{id}";
 
             using HttpClient http = new HttpClient();
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", api_key);
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                api_key
+            );
             var request = new HttpRequestMessage(HttpMethod.Delete, uri);
             var response = await http.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             // var deleted_todo = JsonConvert.DeserializeObject<TodoistTask>(content);
             // return deleted_todo;
-            return new TodoistTask().With(tt => { tt.id = id; });
+            return new TodoistTask().With(tt =>
+            {
+                tt.id = id;
+            });
         }
         catch (Exception e)
         {
@@ -300,7 +317,10 @@ public class TodoistSchedulerService : ITodoistSchedulerService
 
     sealed class ExcludeCalculatedResolver : DefaultContractResolver
     {
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        protected override JsonProperty CreateProperty(
+            MemberInfo member,
+            MemberSerialization memberSerialization
+        )
         {
             var property = base.CreateProperty(member, memberSerialization);
             property.ShouldSerialize = _ => ShouldSerialize(member);
@@ -321,13 +341,17 @@ public class TodoistSchedulerService : ITodoistSchedulerService
             }
 
             var getMethod = propertyInfo.GetMethod;
-            return Attribute.GetCustomAttribute(getMethod, typeof(CompilerGeneratedAttribute)) != null;
+            return Attribute.GetCustomAttribute(getMethod, typeof(CompilerGeneratedAttribute))
+                != null;
         }
     }
 
     sealed class WritablePropertiesOnlyResolver : DefaultContractResolver
     {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        protected override IList<JsonProperty> CreateProperties(
+            Type type,
+            MemberSerialization memberSerialization
+        )
         {
             IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
             return props.Where(p => p.Writable).ToList();

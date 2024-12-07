@@ -11,14 +11,16 @@ public class TodoSchedulerService : ITodoSchedulerService
     public async Task<List<Todo>> SearchTodos(TodoSearch search)
     {
         Console.WriteLine(nameof(SearchTodos));
-        if (search == null) throw new ArgumentNullException(nameof(search));
+        if (search == null)
+            throw new ArgumentNullException(nameof(search));
 
         string joined_ids = string.Join(",", search.ids);
         string label = search.label.Dump("labels");
         string filter = search.filter;
         string project_id = search.project_id;
 
-        string query = @"
+        string query =
+            @"
         select *
             from todos
             where todos.is_sample_data = 1";
@@ -37,7 +39,8 @@ public class TodoSchedulerService : ITodoSchedulerService
         int[] days = new[] { 1, 3, 5, 7, 9, 11, 13, 31 };
         int[] priorities = Enumerable.Range(1, 4).ToArray();
 
-        var sample_todos = Enumerable.Range(1, 10)
+        var sample_todos = Enumerable
+            .Range(1, 10)
             .Select(i =>
             {
                 var now = DateTime.Now;
@@ -55,7 +58,7 @@ public class TodoSchedulerService : ITodoSchedulerService
                     priority = priority,
                     created_at = now,
                     duration = duration,
-                    is_sample_data = true
+                    is_sample_data = true,
                 };
 
                 return todo;
@@ -76,21 +79,21 @@ public class TodoSchedulerService : ITodoSchedulerService
     {
         try
         {
-            if (todo_updates.Count == 0) return 0;
+            if (todo_updates.Count == 0)
+                return 0;
             var Q = new SerialQueue();
 
             // var updated_todos = new List<Todo>();
             int update_count = 0;
             Stopwatch sw = Stopwatch.StartNew();
-            var tasks = todo_updates
-                .Select(update => Q
-                    .Enqueue(async () =>
-                        {
-                            var updates = await PerformUpdate(update);
-                            // updated_todos.AddRange(updates);
-                            update_count += updates;
-                        }
-                    ));
+            var tasks = todo_updates.Select(update =>
+                Q.Enqueue(async () =>
+                {
+                    var updates = await PerformUpdate(update);
+                    // updated_todos.AddRange(updates);
+                    update_count += updates;
+                })
+            );
 
             await Task.WhenAll(tasks);
 
@@ -114,7 +117,8 @@ public class TodoSchedulerService : ITodoSchedulerService
     private async Task<int> PerformUpdate(Todo todo)
     {
         bool debug = true;
-        string update_query = @"INSERT INTO todos (id, content, due, start, end, priority, status, is_sample_data)
+        string update_query =
+            @"INSERT INTO todos (id, content, due, start, end, priority, status, is_sample_data)
         VALUES (@id, @content, @due, @start, @end, @priority, @status, @is_sample_data)
         ON DUPLICATE KEY UPDATE content = VALUES(content),
                             priority=VALUES(priority),
@@ -122,22 +126,24 @@ public class TodoSchedulerService : ITodoSchedulerService
        ";
 
         using var connection = SQLConnections.CreateConnection();
-        int affected = await connection.ExecuteAsync(update_query, new
-        {
-            id = todo.id,
-            status = todo.status,
-            content = todo.content,
-            due = todo.due,
-            start = todo.start,
-            end = todo.end,
-            priority = todo.priority,
-            is_sample_data = todo.is_sample_data,
-        });
+        int affected = await connection.ExecuteAsync(
+            update_query,
+            new
+            {
+                id = todo.id,
+                status = todo.status,
+                content = todo.content,
+                due = todo.due,
+                start = todo.start,
+                end = todo.end,
+                priority = todo.priority,
+                is_sample_data = todo.is_sample_data,
+            }
+        );
         Console.WriteLine(affected);
 
         return affected;
     }
-
 
     public async Task<Todo> DeleteTodo(string id)
     {
@@ -155,14 +161,11 @@ public class TodoSchedulerService : ITodoSchedulerService
 
     public async Task<List<Todo>> GetTodosById(string id)
     {
-        return (await SQLConnections
+        return (
+            await SQLConnections
                 .CreateConnection()
-                .QueryAsync<Todo>(@"select * from todos where id = @id", new
-                {
-                    id = id.ToInt()
-                })
-            )
-            .ToList();
+                .QueryAsync<Todo>(@"select * from todos where id = @id", new { id = id.ToInt() })
+        ).ToList();
     }
 
     /// <summary>

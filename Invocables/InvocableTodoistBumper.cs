@@ -17,7 +17,8 @@ public class InvocableTodoistBumper : IInvocable
 
     public async Task Invoke()
     {
-        string message = $"Attempting todoist processing ({DateTime.Now.ToString(CultureInfo.InvariantCulture)})";
+        string message =
+            $"Attempting todoist processing ({DateTime.Now.ToString(CultureInfo.InvariantCulture)})";
         await MySQLExceptionLogger.LogInfo(message, nameof(worker2));
 
         await BumpLabeledTasks(7);

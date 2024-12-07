@@ -7,8 +7,7 @@ public class Reschedule
     public bool debug { get; set; } = false;
     public bool enabled { get; set; } = false;
 
-    public string
-        filter { get; set; } // e.g., 'overdue'.  see: https://todoist.com/help/articles/introduction-to-filters-V98wIH
+    public string filter { get; set; } // e.g., 'overdue'.  see: https://todoist.com/help/articles/introduction-to-filters-V98wIH
 
     public int daily_limit { get; set; } = 2;
 

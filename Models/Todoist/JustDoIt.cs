@@ -10,15 +10,11 @@ public class JustDoIt
 
 public static class EnvVarExts
 {
-    public static bool Enabled(
-        this IEnumerable<EnvVar> settings
-        , string name
-    ) => !settings.IsNullOrEmpty()
-         && settings.Any(setting =>
-             setting.EnvironmentVarName.Equals(
-                 name,
-                 StringComparison
-                     .InvariantCultureIgnoreCase));
+    public static bool Enabled(this IEnumerable<EnvVar> settings, string name) =>
+        !settings.IsNullOrEmpty()
+        && settings.Any(setting =>
+            setting.EnvironmentVarName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+        );
 }
 
 public class EnvVar

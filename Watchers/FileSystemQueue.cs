@@ -8,11 +8,13 @@ public sealed class FileSystemQueue
 
     public FileSystemQueue()
     {
-        _channel = Channel.CreateBounded<FileSystemEventArgs>(new BoundedChannelOptions(100)
-        {
-            FullMode = BoundedChannelFullMode.Wait,
-            SingleReader = true
-        });
+        _channel = Channel.CreateBounded<FileSystemEventArgs>(
+            new BoundedChannelOptions(100)
+            {
+                FullMode = BoundedChannelFullMode.Wait,
+                SingleReader = true,
+            }
+        );
     }
 
     public async Task Produce(FileSystemEventArgs @event)

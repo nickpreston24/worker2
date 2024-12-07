@@ -10,5 +10,8 @@ public interface ITodoistSchedulerService
     Task<TodoistTask?> CreateTodo(TodoistUpdates todo);
     Task<TodoistTask> DeleteTodo(string id);
     Task<List<TodoistTask>> GetTodosById(string id);
-    Task<List<TodoistTask>> UpdateTodos(List<TodoistUpdates> todoist_updates, int delay_in_seconds = 5);
+    Task<List<TodoistTask>> UpdateTodos(
+        List<TodoistUpdates> todoist_updates,
+        int delay_in_seconds = 5
+    );
 }

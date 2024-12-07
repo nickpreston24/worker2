@@ -14,10 +14,8 @@ public record Todo
     public string status { get; set; } = string.Empty;
     public TodoStatus Status => status;
 
-    public string[] labels => content
-        .Extract<TodoLabel>(@"(?<name>@\w+)")
-        .Select(label => label.name)
-        .ToArray(); // https://regex101.com/r/UPGuX2/1
+    public string[] labels =>
+        content.Extract<TodoLabel>(@"(?<name>@\w+)").Select(label => label.name).ToArray(); // https://regex101.com/r/UPGuX2/1
 
     public int priority { get; set; } = 4;
 

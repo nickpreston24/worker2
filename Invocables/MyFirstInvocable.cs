@@ -11,10 +11,18 @@ public class MyFirstInvocable : IInvocable
     {
         Console.WriteLine($"Hello from {nameof(worker2)}! (updated at {DateTime.Now.Hour})");
         /// Sample MySQL logging (requires MYSQL_* .env variables to be set in your new .env).
-        if (Environment.GetEnvironmentVariable("MYSQLPASSWORD").Dump("what's the password?").NotEmpty())
+        if (
+            Environment
+                .GetEnvironmentVariable("MYSQLPASSWORD")
+                .Dump("what's the password?")
+                .NotEmpty()
+        )
         {
             Console.WriteLine("Writing to railway logs ....");
-            int rows = await MySQLExceptionLogger.LogInfo("Invoking from /srv/", $"{nameof(worker2)}!");
+            int rows = await MySQLExceptionLogger.LogInfo(
+                "Invoking from /srv/",
+                $"{nameof(worker2)}!"
+            );
         }
     }
 }

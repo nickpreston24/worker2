@@ -7,7 +7,8 @@ public static class SQLConnections
 {
     public static MySqlConnection CreateConnection() => GetMySQLConnectionString().AsConnection();
 
-    public static MySqlConnection AsConnection(this string connectionString) => new MySqlConnection(connectionString);
+    public static MySqlConnection AsConnection(this string connectionString) =>
+        new MySqlConnection(connectionString);
 
     public static string GetMySQLConnectionString()
     {
@@ -17,10 +18,11 @@ public static class SQLConnections
             Server = Environment.GetEnvironmentVariable("MYSQLHOST"),
             Password = Environment.GetEnvironmentVariable("MYSQLPASSWORD"),
             UserID = Environment.GetEnvironmentVariable("MYSQLUSER"),
-            Port = (uint)Environment.GetEnvironmentVariable("MYSQLPORT").ToInt()
+            Port = (uint)Environment.GetEnvironmentVariable("MYSQLPORT").ToInt(),
         }.ToString();
 
-        if (connectionString.IsEmpty()) throw new ArgumentNullException(nameof(connectionString));
+        if (connectionString.IsEmpty())
+            throw new ArgumentNullException(nameof(connectionString));
         return connectionString;
     }
 }

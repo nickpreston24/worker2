@@ -15,10 +15,7 @@ public sealed class Listener
     private BlockingCollection<string> file_queue;
     private ConcurrentDictionary<string, DateTime> processedFileMap;
 
-    public Listener(
-        IConfiguration configuration
-        , ILogger<Listener> logger
-        , FileSystemQueue queue)
+    public Listener(IConfiguration configuration, ILogger<Listener> logger, FileSystemQueue queue)
     {
         _logger = logger;
         _queue = queue;
@@ -32,7 +29,7 @@ public sealed class Listener
             Filter = "*.cs*",
             IncludeSubdirectories = true,
             EnableRaisingEvents = true,
-            /* Watch for changes in LastAccess and LastWrite times, and 
+            /* Watch for changes in LastAccess and LastWrite times, and
       the renaming of files or directories. */
             // NotifyFilter = NotifyFilters.LastAccess
             //                | NotifyFilters.LastWrite
@@ -48,10 +45,10 @@ public sealed class Listener
         _watcher.Changed += OnFileChange;
         // _watcher.Error += OnErrorFired;
 
-        if (!string.IsNullOrEmpty(options.Filter)) _watcher.Filter = options.Filter;
+        if (!string.IsNullOrEmpty(options.Filter))
+            _watcher.Filter = options.Filter;
         _logger.LogDebug($"[{DateTime.Now:O}] {nameof(Listener)}: Instance created.");
     }
-
 
     public void Start() => _watcher.EnableRaisingEvents = true;
 
@@ -69,7 +66,9 @@ public sealed class Listener
     private void Created(object sender, FileSystemEventArgs e)
     {
         file_queue.Add(e.FullPath);
-        _logger.LogInformation($"[{DateTime.Now:O}] {nameof(Listener)}: The file has been created. File : {e.Name}");
+        _logger.LogInformation(
+            $"[{DateTime.Now:O}] {nameof(Listener)}: The file has been created. File : {e.Name}"
+        );
         _queue.Produce(e).Wait();
     }
 }

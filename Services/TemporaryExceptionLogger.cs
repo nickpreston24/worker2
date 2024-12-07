@@ -20,14 +20,16 @@ public static class TemporaryExceptionLogger
             string insert_query =
                 @"insert into logs (exception_message, exception_text, application_name) values (@exception_message, @exception_text, @application_name)";
 
-            var results = await Dapper.SqlMapper
-                .QueryAsync(connection, insert_query,
-                    new
-                    {
-                        application_name = nameof(personal_daemon),
-                        exception_text = exception.ToString(),
-                        exception_message = exception.Message
-                    });
+            var results = await Dapper.SqlMapper.QueryAsync(
+                connection,
+                insert_query,
+                new
+                {
+                    application_name = nameof(personal_daemon),
+                    exception_text = exception.ToString(),
+                    exception_message = exception.Message,
+                }
+            );
             // int affected = results.ToList().Count;
             //
             // Console.WriteLine($"logged {affected} log records.");

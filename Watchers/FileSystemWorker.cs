@@ -9,7 +9,11 @@ public class FileSystemWorker : BackgroundService
     private readonly FileSystemQueue _queue;
     private readonly Listener _listener;
 
-    public FileSystemWorker(ILogger<FileSystemWorker> logger, FileSystemQueue queue, Listener listener)
+    public FileSystemWorker(
+        ILogger<FileSystemWorker> logger,
+        FileSystemQueue queue,
+        Listener listener
+    )
     {
         _logger = logger;
         _queue = queue;
@@ -23,7 +27,11 @@ public class FileSystemWorker : BackgroundService
         {
             var @event = await _queue.Consume(stoppingToken);
             await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
-            _logger.LogInformation("[{date}] {fileName} arrived to worker.", $"{DateTime.Now:O}", @event.Name);
+            _logger.LogInformation(
+                "[{date}] {fileName} arrived to worker.",
+                $"{DateTime.Now:O}",
+                @event.Name
+            );
         }
     }
 }

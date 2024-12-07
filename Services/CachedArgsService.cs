@@ -23,7 +23,7 @@ public class CachedArgsService : ICachedArgsService
         // Add data to the cache with an expiration time of 5 minutes
         CacheItemPolicy cachePolicy = new CacheItemPolicy
         {
-            AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(5)
+            AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(5),
         };
 
         cache.Add(cacheKey, cachedData, cachePolicy);

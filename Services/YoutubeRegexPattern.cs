@@ -5,9 +5,14 @@ namespace CodeMechanic.Youtube;
 
 public class YoutubeRegexPattern : Enumeration
 {
-    public static YoutubeRegexPattern Link = new YoutubeRegexPattern(1, nameof(Link), @"\s*https://www.youtube.com.*");
+    public static YoutubeRegexPattern Link = new YoutubeRegexPattern(
+        1,
+        nameof(Link),
+        @"\s*https://www.youtube.com.*"
+    );
 
-    public YoutubeRegexPattern(int id, string name, string pattern) : base(id, name)
+    public YoutubeRegexPattern(int id, string name, string pattern)
+        : base(id, name)
     {
         this.CompiledPattern = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         this.RawPattern = pattern;

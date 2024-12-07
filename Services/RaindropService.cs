@@ -13,16 +13,14 @@ public class RaindropService : IRaindropService
         {
             RootPath = rootdir,
             FileSearchMask = "*.csv",
-            FileNamePattern = "raindrop"
+            FileNamePattern = "raindrop",
         };
 
-
-        var grep_task = Task.Run(
-            () =>
-            {
-                var results = youtube_grepper.GetMatchingFiles().ToList();
-                return results;
-            });
+        var grep_task = Task.Run(() =>
+        {
+            var results = youtube_grepper.GetMatchingFiles().ToList();
+            return results;
+        });
 
         var files = await grep_task;
         return files;

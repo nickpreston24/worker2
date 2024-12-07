@@ -34,28 +34,34 @@ public class JustDoItInvoker : IInvocable
         bool debug = true
     )
     {
-        if (debug) Console.WriteLine(nameof(AutoRescheduleFilteredTasks));
+        if (debug)
+            Console.WriteLine(nameof(AutoRescheduleFilteredTasks));
         var results = await todos_scheduler.SearchTodos(new TodoSearch("guns") { });
         results.Dump("all todos");
 
         return default;
     }
 
-    private async ValueTask<bool> SaveRun(List<TodoUpdates> actualUpdates, Reschedule reschedulingOptions)
+    private async ValueTask<bool> SaveRun(
+        List<TodoUpdates> actualUpdates,
+        Reschedule reschedulingOptions
+    )
     {
         string connectionString = SQLConnections.GetMySQLConnectionString();
         using var connection = new MySqlConnection(connectionString);
         string insert_query =
             @"insert into run_history (method_name, filter, created_by) values (@method_name, @filter, @created_by)";
 
-        var results = await Dapper.SqlMapper
-            .QueryAsync(connection, insert_query,
-                new
-                {
-                    method_name = reschedulingOptions.name,
-                    filter = reschedulingOptions.filter,
-                    created_by = nameof(worker2)
-                });
+        var results = await Dapper.SqlMapper.QueryAsync(
+            connection,
+            insert_query,
+            new
+            {
+                method_name = reschedulingOptions.name,
+                filter = reschedulingOptions.filter,
+                created_by = nameof(worker2),
+            }
+        );
 
         return true;
     }
@@ -75,9 +81,9 @@ public static class ShellExtensions
     /// <param name="writeline">Overload to whatever output function you like for verbose mode</param>
     /// <returns></returns>
     public static async Task<string> BashV2(
-        this string command
-        , bool verbose = false
-        , Action<string> writeline = null
+        this string command,
+        bool verbose = false,
+        Action<string> writeline = null
     )
     {
         if (writeline == null)
@@ -95,7 +101,8 @@ public static class ShellExtensions
         psi.UseShellExecute = false;
         // psi.CreateNoWindow = true;
 
-        if (verbose) writeline($"Running command `{command}`");
+        if (verbose)
+            writeline($"Running command `{command}`");
         using var process = Process.Start(psi);
 
         ArgumentNullException.ThrowIfNull(process);
@@ -103,15 +110,16 @@ public static class ShellExtensions
         // process.WaitForExit();
         await process.WaitForExitAsync();
 
-        if (verbose) writeline("Done!");
+        if (verbose)
+            writeline("Done!");
 
         var output = process.StandardOutput.ReadToEnd();
 
-        if (verbose) writeline(output);
+        if (verbose)
+            writeline(output);
 
         return output;
     }
-
 
     public static Task<int> BashJackMa(this string cmd)
     {
@@ -126,39 +134,44 @@ public static class ShellExtensions
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
             },
-            EnableRaisingEvents = true
+            EnableRaisingEvents = true,
         };
-        process.Exited += (EventHandler)((sender, args) =>
-        {
-            if (process.ExitCode == 0)
+        process.Exited += (EventHandler)(
+            (sender, args) =>
             {
-                source.SetResult(0);
-            }
-            else
-            {
-                TaskCompletionSource<int> completionSource = source;
-                DefaultInterpolatedStringHandler
-                    interpolatedStringHandler = new DefaultInterpolatedStringHandler(35, 2);
-                interpolatedStringHandler.AppendLiteral("Command `");
-                interpolatedStringHandler.AppendFormatted(cmd);
-                interpolatedStringHandler.AppendLiteral("` failed with exit code `");
-                interpolatedStringHandler.AppendFormatted<int>(process.ExitCode);
-                interpolatedStringHandler.AppendLiteral("`");
-                Exception exception = new Exception(interpolatedStringHandler.ToStringAndClear());
-                completionSource.SetException(exception);
-            }
+                if (process.ExitCode == 0)
+                {
+                    source.SetResult(0);
+                }
+                else
+                {
+                    TaskCompletionSource<int> completionSource = source;
+                    DefaultInterpolatedStringHandler interpolatedStringHandler =
+                        new DefaultInterpolatedStringHandler(35, 2);
+                    interpolatedStringHandler.AppendLiteral("Command `");
+                    interpolatedStringHandler.AppendFormatted(cmd);
+                    interpolatedStringHandler.AppendLiteral("` failed with exit code `");
+                    interpolatedStringHandler.AppendFormatted<int>(process.ExitCode);
+                    interpolatedStringHandler.AppendLiteral("`");
+                    Exception exception = new Exception(
+                        interpolatedStringHandler.ToStringAndClear()
+                    );
+                    completionSource.SetException(exception);
+                }
 
-            process.Dispose();
-        });
+                process.Dispose();
+            }
+        );
         try
         {
             process.Start();
         }
         catch (Exception ex)
         {
-            DefaultInterpolatedStringHandler interpolatedStringHandler = new DefaultInterpolatedStringHandler(16, 2);
+            DefaultInterpolatedStringHandler interpolatedStringHandler =
+                new DefaultInterpolatedStringHandler(16, 2);
             interpolatedStringHandler.AppendLiteral("Command ");
             interpolatedStringHandler.AppendFormatted(cmd);
             interpolatedStringHandler.AppendLiteral(" failed\n");
@@ -177,9 +190,7 @@ public static class Notifiers
     {
         string name = "Script Name";
         var output =
-            await
-                $@"notify-send '{title}' '{message}' -a '{name}' -u normal -i face-smile"
-                    .BashJackMa();
+            await $@"notify-send '{title}' '{message}' -a '{name}' -u normal -i face-smile".BashJackMa();
 
         return output;
     }
@@ -202,9 +213,9 @@ public static class Notifiers
     {
         string name = "Script Name";
         string output =
-            await
-                $@"notify-send '{title}' '{message}' -a '{name}' -u normal -i face-smile"
-                    .Bash(verbose: true);
+            await $@"notify-send '{title}' '{message}' -a '{name}' -u normal -i face-smile".Bash(
+                verbose: true
+            );
 
         return output;
     }

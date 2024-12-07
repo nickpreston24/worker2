@@ -17,13 +17,16 @@ public class FileWatcherInvocable : IInvocable
 
     CancellationToken cancellationToken { get; set; }
 
-    public FileWatcherInvocable(ILogger<FileSystemWorker> logger, FileSystemQueue queue, Listener listener)
+    public FileWatcherInvocable(
+        ILogger<FileSystemWorker> logger,
+        FileSystemQueue queue,
+        Listener listener
+    )
     {
         _logger = logger;
         _queue = queue;
         _listener = listener;
     }
-
 
     public async Task Invoke()
     {
@@ -72,10 +75,13 @@ public class FileWatcherInvocable : IInvocable
             // await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
             await WebAppOperations.FireTheDEI(@event);
 
-            _logger.LogInformation("[{date}] {fileName} arrived at worker.", $"{DateTime.Now:O}", @event.Name);
+            _logger.LogInformation(
+                "[{date}] {fileName} arrived at worker.",
+                $"{DateTime.Now:O}",
+                @event.Name
+            );
         }
     }
-
 
     #region OLD
 
@@ -112,7 +118,7 @@ public class FileWatcherInvocable : IInvocable
     //         Filter = "*.cs*",
     //         IncludeSubdirectories = true,
     //         EnableRaisingEvents = true,
-    //         /* Watch for changes in LastAccess and LastWrite times, and 
+    //         /* Watch for changes in LastAccess and LastWrite times, and
     //   the renaming of files or directories. */
     //         // NotifyFilter = NotifyFilters.LastAccess
     //         //                | NotifyFilters.LastWrite

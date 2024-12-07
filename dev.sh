@@ -1,2 +1,3 @@
 #!/bin/bash
-sudo dotnet watch run --project . 
+# sudo
+dotnet watch run --project . 

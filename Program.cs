@@ -13,25 +13,21 @@ public class Program
     public static async Task Main(string[] args)
     {
         DotEnv.Load();
-        IHost host = CreateHostBuilder(args)
-            .UseSystemd()
-            .Build();
+        IHost host = CreateHostBuilder(args).UseSystemd().Build();
 
         host.Services.UseScheduler(scheduler =>
             {
                 var prod_maybe = Environment.GetEnvironmentVariable("MODE").ToMaybe();
 
-                var settings = ConfigReader
-                    .LoadConfig(
-                        "worker_settings.json"
-                        , fallback: new WorkerSettings());
+                var settings = ConfigReader.LoadConfig(
+                    "worker_settings.json",
+                    fallback: new WorkerSettings()
+                );
 
                 settings.Dump("Current settings ", printFn: Console.WriteLine);
 
                 if (settings.justdoit.Enabled)
-                    scheduler.Schedule<JustDoItInvoker>()
-                        .Daily()
-                        .RunOnceAtStart();
+                    scheduler.Schedule<JustDoItInvoker>().Daily().RunOnceAtStart();
 
                 // if (settings.justdoit.Enabled)
                 // scheduler.Schedule<WebScrapingInvoker>()
@@ -45,11 +41,7 @@ public class Program
                 //     ;
 
                 // FILE WATCHER
-                scheduler
-                    .Schedule<FileWatcherInvocable>()
-                    .Daily()
-                    .RunOnceAtStart();
-
+                scheduler.Schedule<FileWatcherInvocable>().Daily().RunOnceAtStart();
 
                 // settings.Dump(nameof(settings));
 
@@ -65,23 +57,25 @@ public class Program
                 if (settings.bump.enabled)
                     /** AUTO BUMPER */
 
-                    prod_maybe.Case<string>(some: _ =>
-                    {
-                        scheduler
-                            .Schedule<InvocableTodoistBumper>()
-                            .EverySeconds(settings.bump.wait_seconds)
-                            .PreventOverlapping(nameof(TodoistRescheduler));
-                        return _;
-                    }, none: () =>
-                    {
-                        scheduler
-                            .Schedule<InvocableTodoistBumper>()
-                            .EverySeconds(60 * settings.bump.wait_minutes)
-                            .PreventOverlapping(nameof(TodoistRescheduler))
-                            ;
+                    prod_maybe.Case<string>(
+                        some: _ =>
+                        {
+                            scheduler
+                                .Schedule<InvocableTodoistBumper>()
+                                .EverySeconds(settings.bump.wait_seconds)
+                                .PreventOverlapping(nameof(TodoistRescheduler));
+                            return _;
+                        },
+                        none: () =>
+                        {
+                            scheduler
+                                .Schedule<InvocableTodoistBumper>()
+                                .EverySeconds(60 * settings.bump.wait_minutes)
+                                .PreventOverlapping(nameof(TodoistRescheduler));
 
-                        return "";
-                    });
+                            return "";
+                        }
+                    );
             })
             .OnError((exception) => LogExceptionToDB(exception));
 
@@ -92,7 +86,6 @@ public class Program
     {
         await TemporaryExceptionLogger.LogException(exception);
     }
-
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)

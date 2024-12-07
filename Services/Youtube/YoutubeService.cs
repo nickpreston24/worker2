@@ -15,7 +15,8 @@ public class YoutubeService : IYoutubeService
     public async Task<Dictionary<string, List<Grepper.GrepResult>>> FindAllYoutubeLinks(
         string base_directory,
         bool debug_mode = false,
-        params string[] subfolder_patterns)
+        params string[] subfolder_patterns
+    )
     {
         if (debug_mode)
             Console.WriteLine("Looking in base directory :>> " + base_directory);
@@ -26,8 +27,7 @@ public class YoutubeService : IYoutubeService
         foreach (var pattern in subfolder_patterns)
         {
             var rgx = new Regex(pattern);
-            await foreach (var dir in base_directory_di
-                               .DiscoverDirectories(rgx))
+            await foreach (var dir in base_directory_di.DiscoverDirectories(rgx))
             {
                 if (debug_mode)
                     Console.WriteLine("regex root dir:>>" + dir);
@@ -35,7 +35,7 @@ public class YoutubeService : IYoutubeService
                 var youtube_grepper = new Grepper()
                 {
                     RootPath = dir,
-                    FileSearchLinePattern = YoutubeRegexPattern.Link.RawPattern
+                    FileSearchLinePattern = YoutubeRegexPattern.Link.RawPattern,
                 };
 
                 var files = youtube_grepper.GetMatchingFiles().ToList();
@@ -46,15 +46,15 @@ public class YoutubeService : IYoutubeService
         }
 
         if (debug_mode)
-            grepResults
-                .Select(r => r.Key)
-                .Dump("all subfolders found by regex");
+            grepResults.Select(r => r.Key).Dump("all subfolders found by regex");
 
         return grepResults.ToDictionary();
     }
 
-    public async Task<Dictionary<string, List<Grepper.GrepResult>>> FindAllYoutubeLinks(string base_directory,
-        params string[] subfolder_patterns)
+    public async Task<Dictionary<string, List<Grepper.GrepResult>>> FindAllYoutubeLinks(
+        string base_directory,
+        params string[] subfolder_patterns
+    )
     {
         return await FindAllYoutubeLinks(base_directory, false, subfolder_patterns);
     }
@@ -64,8 +64,10 @@ public class YoutubeService : IYoutubeService
         foreach (var line in lines)
         {
             // yield return line.Extract<YoutubeLink>(YoutubeRegexPattern.Link.CompiledPattern);
-            yield return CodeMechanic.RegularExpressions.RegexExtensions.Extract<YoutubeLink>(line,
-                YoutubeRegexPattern.Link.CompiledPattern);
+            yield return CodeMechanic.RegularExpressions.RegexExtensions.Extract<YoutubeLink>(
+                line,
+                YoutubeRegexPattern.Link.CompiledPattern
+            );
         }
     }
 }
@@ -73,13 +75,15 @@ public class YoutubeService : IYoutubeService
 public interface IYoutubeService
 {
     Task<Dictionary<string, List<Grepper.GrepResult>>> FindAllYoutubeLinks(
-        string base_directory
-        , bool debug_mode
-        , params string[] subfolder_patterns);
+        string base_directory,
+        bool debug_mode,
+        params string[] subfolder_patterns
+    );
 
     Task<Dictionary<string, List<Grepper.GrepResult>>> FindAllYoutubeLinks(
-        string base_directory
-        , params string[] subfolder_patterns);
+        string base_directory,
+        params string[] subfolder_patterns
+    );
 
     IAsyncEnumerable<List<YoutubeLink>> ExtractAllYoutubeLinks(string[] lines);
 }

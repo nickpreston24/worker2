@@ -20,10 +20,7 @@ public static class WebAppOperations
         //     Console.WriteLine($"dir: {dir}");
         // }
 
-        var project_folder = dir
-            .AsDirectory()
-            .GoUpToDirectory("Pages")
-            .GoUp();
+        var project_folder = dir.AsDirectory().GoUpToDirectory("Pages").GoUp();
 
         Console.WriteLine("project dir: " + project_folder);
 

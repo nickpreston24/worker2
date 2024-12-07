@@ -10,8 +10,10 @@ public class EmailSender : IEmailSender
 {
     public Task SendEmailAsync(string email, string subject, string message)
     {
-        if (email.IsEmpty()) throw new ArgumentNullException(nameof(email));
-        if (message.IsEmpty()) throw new ArgumentNullException(nameof(message));
+        if (email.IsEmpty())
+            throw new ArgumentNullException(nameof(email));
+        if (message.IsEmpty())
+            throw new ArgumentNullException(nameof(message));
         if (!Regex.IsMatch(message, @"\s*<\w+"))
             throw new ArgumentException("email must contain valid HTML!");
         string mail = "michael_n_preston@outlook.com";
@@ -20,7 +22,7 @@ public class EmailSender : IEmailSender
         var client = new SmtpClient("smtp-mail.outlook.com", 587)
         {
             EnableSsl = true,
-            Credentials = new NetworkCredential(mail, pw)
+            Credentials = new NetworkCredential(mail, pw),
         };
 
         return client.SendMailAsync(new MailMessage(from: mail, to: email, subject, message));
