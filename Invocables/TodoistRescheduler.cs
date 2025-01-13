@@ -14,7 +14,8 @@ public class TodoistRescheduler : IInvocable
 {
     private readonly ITodoistSchedulerService todoist;
 
-    public virtual ReschedulingOptions rescheduling_options { get; set; } = new();
+    public virtual ReschedulingOptions rescheduling_options { get; set; } =
+        new();
 
     public TodoistRescheduler(ITodoistSchedulerService service)
     {
@@ -28,20 +29,30 @@ public class TodoistRescheduler : IInvocable
         // return;
         try
         {
-            string log_message = "Beginning Invoke at '" + DateTime.Now.ToString("o") + "'";
+            string log_message = "Beginning Invoke at '" +
+                                 DateTime.Now.ToString("o") + "'";
             // File.AppendAllText("rescheduler.log", log_message);
             // rescheduling_options.Dump(nameof(rescheduling_options));
 
             var Q = new SerialQueue();
             int delay_after_task = 250;
 
+            if (rescheduling_options
+                    .Reschedules.Length == 0)
+            {
+                Console.WriteLine("Nothing scheduled. Exiting");
+                return;
+            }
+
             Stopwatch sw = Stopwatch.StartNew();
             var tasks = rescheduling_options
-                .Reschedules.Where(rs => rs.enabled)
+                .Reschedules
+                .Where(rs => rs.enabled)
                 .Select(reschedule =>
                     Q.Enqueue(async () =>
                     {
-                        var changed = await AutoRescheduleFilteredTasks(reschedule);
+                        var changed =
+                            await AutoRescheduleFilteredTasks(reschedule);
                         // Console.WriteLine("changed " + changed.Count);
                         Thread.Sleep(delay_after_task);
                         //// other crap
@@ -88,24 +99,32 @@ public class TodoistRescheduler : IInvocable
             if (rescheduling_options.use_cache)
             {
                 string lines = File.ReadAllText(cache_file_name);
-                candidates = JsonConvert.DeserializeObject<List<TodoistTask>>(lines);
-                Console.WriteLine($"Total todos loaded from cache {candidates.Count}");
+                candidates =
+                    JsonConvert.DeserializeObject<List<TodoistTask>>(lines);
+                Console.WriteLine(
+                    $"Total todos loaded from cache {candidates.Count}");
             }
             else if (!rescheduling_options.use_cache)
             {
-                candidates = await todoist.SearchTodos(new TodoistTaskSearch("guns") { });
+                candidates =
+                    await todoist.SearchTodos(new TodoistTaskSearch("guns")
+                        { });
             }
 
             string candidates_json = JsonConvert.SerializeObject(candidates);
             var savecache = new SaveAs(cache_file_name);
             FS.SaveAs(savecache, candidates_json);
 
-            bool include_non_recurring = rescheduling_options.filter.Contains("!recurring"); // if filter contains the ! before recurring, then don't allow recurring.  The API designers forgot to not mess this up.
+            bool include_non_recurring =
+                rescheduling_options.filter
+                    .Contains(
+                        "!recurring"); // if filter contains the ! before recurring, then don't allow recurring.  The API designers forgot to not mess this up.
 
             // if this is set, then we want all non-recurring tasks, regardless of label or overdue status...
             // bool exactly_equals_non_recurring = rescheduling_options.filter.Equals("!recurring");
 
-            Console.WriteLine("Include non recurring? " + include_non_recurring);
+            Console.WriteLine("Include non recurring? " +
+                              include_non_recurring);
 
             var any_recurring = candidates
                 .Where(x => x.due != null && !x.due.is_recurring.ToBoolean())
@@ -120,7 +139,9 @@ public class TodoistRescheduler : IInvocable
             var filtered_candidates = candidates
                 // there should never be a null date time, but if there is, set the new due date to today, so nothing is hurt.
                 .OrderBy(x =>
-                    x.due.ToMaybe().Case(some: due => due.date.ToDateTime(today), none: () => today)
+                    x.due.ToMaybe()
+                        .Case(some: due => due.date.ToDateTime(today),
+                            none: () => today)
                 )
                 // order by priority (fixed so 4 from the API means 1 to me... API devs... I know, right?)
                 .OrderBy(x => x.priority.FixPriorityBug().Id)
@@ -133,21 +154,24 @@ public class TodoistRescheduler : IInvocable
                     ,
                     tasks =>
                         tasks.Where(x =>
-                            x.due != null && !x.due.is_recurring.ToBoolean() || x.due == null
+                            x.due != null && !x.due.is_recurring.ToBoolean() ||
+                            x.due == null
                         )
                 )
                 .Take(rescheduling_options.task_limit)
                 .ToList();
 
             // if (debug)
-            Console.WriteLine("TOTAL Filtered candidates: " + filtered_candidates.Count);
+            Console.WriteLine("TOTAL Filtered candidates: " +
+                              filtered_candidates.Count);
             if (filtered_candidates.Count == 0)
             {
                 Console.WriteLine("Nothing to do, so returning....");
                 return new List<TodoistTask>();
             }
 
-            var batches = filtered_candidates.Batch(rescheduling_options.daily_limit);
+            var batches =
+                filtered_candidates.Batch(rescheduling_options.daily_limit);
 
             if (debug)
                 Console.WriteLine("Batches made : " + batches.Count());
@@ -170,9 +194,11 @@ public class TodoistRescheduler : IInvocable
 
                     if (debug)
                     {
-                        Console.WriteLine("new due date set to :" + updates.due_date);
+                        Console.WriteLine("new due date set to :" +
+                                          updates.due_date);
                         Console.WriteLine(
-                            "for task w/ priority :" + updates.priority.FixPriorityBug()
+                            "for task w/ priority :" +
+                            updates.priority.FixPriorityBug()
                         );
                     }
 
@@ -189,7 +215,8 @@ public class TodoistRescheduler : IInvocable
 
             // actual_updates.Take(2).Dump("sample updates for filter " + rescheduling_options.filter);
 
-            Console.WriteLine($"Total updated tasks: {filtered_candidates.Count}");
+            Console.WriteLine(
+                $"Total updated tasks: {filtered_candidates.Count}");
             // filtered_candidates.Dump(nameof(filtered_candidates));
             // Console.WriteLine("Total batches:" + batches.Count() );
 
@@ -200,7 +227,8 @@ public class TodoistRescheduler : IInvocable
 
                 string save_json = JsonConvert.SerializeObject(actual_updates);
                 string cwd = Directory.GetCurrentDirectory();
-                var save = new SaveAs("rescheduler_plan.json") { save_folder = cwd };
+                var save = new SaveAs("rescheduler_plan.json")
+                    { save_folder = cwd };
                 FS.SaveAs(save, save_json);
             }
             else if (!rescheduling_options.dry_run)
@@ -208,7 +236,8 @@ public class TodoistRescheduler : IInvocable
                 await todoist.UpdateTodos(actual_updates);
 
                 if (debug)
-                    Console.WriteLine($"Saving run ... '{rescheduling_options.name}'");
+                    Console.WriteLine(
+                        $"Saving run ... '{rescheduling_options.name}'");
                 await SaveRun(actual_updates, rescheduling_options);
             }
 
